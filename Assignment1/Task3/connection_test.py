@@ -6,12 +6,23 @@ db_connection = mysql.connector.connect(
     auth_plugin="mysql_native_password"
 
 )
-# creating database_cursor to perform SQL operation
-db_cursor = db_connection.cursor()
-# executing cursor with execute method and pass SQL query
-db_cursor.execute("CREATE DATABASE my_first_db")
-# get list of all databases
-db_cursor.execute("SHOW DATABASES")
-# print all databases
-for db in db_cursor:
-    print(db)
+
+while(True):
+    print("-------------------------------TERMINAL-----------------------------------")
+    query = input()
+    db_cursor = db_connection.cursor()
+    db_cursor.execute("use test")
+    try:
+        db_cursor.execute(query)
+        for db in db_cursor:
+            print(db)
+    except:
+        print("There is syntax error in your sql command!")
+        continue
+        
+
+
+
+
+
+
