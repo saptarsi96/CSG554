@@ -22,13 +22,41 @@ def hel():
         messages = ""
     user = {'username': messages}
     return redirect(url_for('index',user=user))
-
-
 @app.route('/reg')
 def add():
     return render_template('register.html')
+@app.route("/myprofile/<email>", methods=('GET', 'POST'))
+def myprofile(email):
+    msg =""
+    if request.method == 'GET':
+        con = sqlite3.connect('database.db')
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute("select * from users where email=?",(email,))
+        rows = cur.fetchall();
+        return render_template("myprofile.html",rows = rows)
+    if request.method == 'POST':
+        try:
+           name = request.form['name']
+           addr = request.form['addr']
+           city = request.form['city']
+           pin = request.form['pin']
+           bg = request.form['bg']
+           emailid = request.form['email']
+           print(name,addr)
+           with sqlite3.connect("database.db") as con:
+              cur = con.cursor()
+              cur.execute("UPDATE users SET name = ?, addr = ?, city = ?, pin = ?,bg = ?, email = ? WHERE email = ?",(name,addr,city,pin,bg,emailid,email) )
+              con.commit()
+              msg = "Record successfully updated"
+        except:
+           con.rollback()
+           msg = "error in insert operation"
 
-
+        finally:
+           flash('profile saved')
+           return redirect(url_for('index'))
+           con.close()
 @app.route('/addrec',methods = ['POST', 'GET'])
 def addrec():
    msg = ""
@@ -48,31 +76,18 @@ def addrec():
              cur.execute("INSERT INTO users (name,addr,city,pin,bg,email,pass) VALUES (?,?,?,?,?,?,?)",(nm,addr,city,pin,bg,email,passs) )
              con.commit()
              msg = "Record successfully added"
-
-
-
       except:
              con.rollback()
              msg = "error in insert operation"
-
       finally:
              flash('done')
              return redirect(url_for('index'))
              con.close()
-
-
-
-
-
 @app.route('/index',methods = ['POST','GET'])
 def index():
-
-
-
     if request.method == 'POST':
         if session.get('username') is not None:
             messages = session['username']
-
         else:
             messages = ""
         user = {'username': messages}
@@ -84,33 +99,12 @@ def index():
         if type=='blood':
             con = sqlite3.connect('database.db')
             con.row_factory = sqlite3.Row
-
             cur = con.cursor()
             cur.execute("select * from users where bg=?",(val,))
             search = cur.fetchall();
             cur.execute("select * from users ")
-
             rows = cur.fetchall();
-
-
             return render_template('index.html', title='Home', user=user,rows=rows,search=search)
-
-        if type=='donorname':
-            con = sqlite3.connect('database.db')
-            con.row_factory = sqlite3.Row
-
-            cur = con.cursor()
-            cur.execute("select * from users where name=?",(val,))
-            search = cur.fetchall();
-            cur.execute("select * from users ")
-
-            rows = cur.fetchall();
-
-
-            return render_template('index.html', title='Home', user=user,rows=rows,search=search)
-
-
-
     if session.get('username') is not None:
         messages = session['username']
 
@@ -127,24 +121,15 @@ def index():
 
         rows = cur.fetchall();
         return render_template('index.html', title='Home', user=user, rows=rows)
-
-    #messages = request.args['user']
-
-
-
-
 @app.route('/list')
 def list():
    con = sqlite3.connect('database.db')
    con.row_factory = sqlite3.Row
-
    cur = con.cursor()
    cur.execute("select * from users")
-
    rows = cur.fetchall();
    print(rows)
    return render_template("list.html",rows = rows)
-
 @app.route('/drop')
 def dr():
         con = sqlite3.connect('database.db')
@@ -189,8 +174,6 @@ def login():
         return render_template('/login.html')
     else:
         return render_template('/')
-
-
 @app.route('/logout')
 def logout():
    # remove the username from the session if it is there
@@ -200,214 +183,7 @@ def logout():
        session.pop('admin',None)
    except KeyError as e:
        print("I got a KeyError - reason " +str(e))
-
-
    return redirect(url_for('login'))
-
-
-@app.route('/dashboard')
-def dashboard():
-   totalblood=0
-   con = sqlite3.connect('database.db')
-   con.row_factory = sqlite3.Row
-
-   cur = con.cursor()
-   cur.execute("select * from blood")
-
-   rows = cur.fetchall();
-   for row in rows:
-       totalblood  += int(row['qty'])
-   
-   cur.execute("select * from users")
-   users = cur.fetchall();
-
-   Apositive=0
-   Opositive=0
-   Bpositive=0
-   Anegative=0
-   Onegative=0
-   Bnegative=0
-   ABpositive=0
-   ABnegative = 0
-
-   print(rows)
-   cur.execute("select * from blood where type=?",('A+',))
-   type = cur.fetchall();
-   for a in type:
-       Apositive += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('A-',))
-   type = cur.fetchall();
-   for a in type:
-       Anegative += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('O+',))
-   type = cur.fetchall();
-   for a in type:
-       Opositive += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('O-',))
-   type = cur.fetchall();
-   for a in type:
-       Onegative += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('B+',))
-   type = cur.fetchall();
-   for a in type:
-       Bpositive += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('B-',))
-   type = cur.fetchall();
-   for a in type:
-       Bnegative += int(a['qty'])
-
-
-
-   cur.execute("select * from blood where type=?",('AB+',))
-   type = cur.fetchall();
-   for a in type:
-       ABpositive += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('AB-',))
-   type = cur.fetchall();
-   for a in type:
-       ABnegative += int(a['qty'])
-
-
-   bloodtypestotal = {'apos': Apositive,'aneg':Anegative,'opos':Opositive,'oneg':Onegative,'bpos':Bpositive,'bneg':Bnegative,'abpos':ABpositive,'abneg':ABnegative}
-
-
-
-
-
-
-   return render_template("requestdonors.html",rows = rows,totalblood = totalblood,users=users,bloodtypestotal=bloodtypestotal)
-
-
-@app.route('/bloodbank')
-def bl():
-    conn = sqlite3.connect('database.db')
-    print("Opened database successfully")
-    conn.execute('CREATE TABLE IF NOT EXISTS blood (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, donorname TEXT, donorsex TEXT, qty TEXT, dweight TEXT, donoremail TEXT, phone TEXT)')
-    print( "Table created successfully")
-    conn.close()
-    return render_template('/adddonor.html')
-
-
-@app.route('/addb',methods =['POST','GET'])
-def addb():
-    msg = ""
-    if request.method == 'POST':
-        try:
-           type = request.form['blood_group']
-           donorname = request.form['donorname']
-           donorsex = request.form['gender']
-           qty = request.form['qty']
-           dweight = request.form['dweight']
-           email = request.form['email']
-           phone = request.form['phone']
-
-
-
-           with sqlite3.connect("database.db") as con:
-              cur = con.cursor()
-              cur.execute("INSERT INTO blood (type,donorname,donorsex,qty,dweight,donoremail,phone) VALUES (?,?,?,?,?,?,?)",(type,donorname,donorsex,qty,dweight,email,phone) )
-              con.commit()
-              msg = "Record successfully added"
-        except:
-           con.rollback()
-           msg = "error in insert operation"
-
-        finally:
-            flash("added new entry!")
-            return redirect(url_for('dashboard'))
-            con.close()
-
-    else:
-        return render_template("rest.html",msg=msg)
-
-@app.route("/editdonor/<id>", methods=('GET', 'POST'))
-def editdonor(id):
-    msg =""
-    if request.method == 'GET':
-        con = sqlite3.connect('database.db')
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute("select * from blood where id=?",(id,))
-        rows = cur.fetchall();
-        return render_template("editdonor.html",rows = rows)
-    if request.method == 'POST':
-        try:
-           type = request.form['blood_group']
-           donorname = request.form['donorname']
-           donorsex = request.form['gender']
-           qty = request.form['qty']
-           dweight = request.form['dweight']
-           email = request.form['email']
-           phone = request.form['phone']
-
-
-
-           with sqlite3.connect("database.db") as con:
-              cur = con.cursor()
-              cur.execute("UPDATE blood SET type = ?, donorname = ?, donorsex = ?, qty = ?,dweight = ?, donoremail = ?,phone = ? WHERE id = ?",(type,donorname,donorsex,qty,dweight,email,phone,id) )
-              con.commit()
-              msg = "Record successfully updated"
-        except:
-           con.rollback()
-           msg = "error in insert operation"
-
-        finally:
-            flash('saved successfully')
-            return redirect(url_for('dashboard'))
-            con.close()
-
-@app.route("/myprofile/<email>", methods=('GET', 'POST'))
-def myprofile(email):
-    msg =""
-    if request.method == 'GET':
-
-
-        con = sqlite3.connect('database.db')
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute("select * from users where email=?",(email,))
-        rows = cur.fetchall();
-        return render_template("myprofile.html",rows = rows)
-    if request.method == 'POST':
-        try:
-           name = request.form['name']
-           addr = request.form['addr']
-           city = request.form['city']
-           pin = request.form['pin']
-           bg = request.form['bg']
-           emailid = request.form['email']
-
-           print(name,addr)
-
-
-
-           with sqlite3.connect("database.db") as con:
-              cur = con.cursor()
-              cur.execute("UPDATE users SET name = ?, addr = ?, city = ?, pin = ?,bg = ?, email = ? WHERE email = ?",(name,addr,city,pin,bg,emailid,email) )
-              con.commit()
-              msg = "Record successfully updated"
-        except:
-           con.rollback()
-           msg = "error in insert operation"
-
-        finally:
-           flash('profile saved')
-           return redirect(url_for('index'))
-           con.close()
-
-
-
 @app.route('/contactforblood/<emailid>', methods=('GET', 'POST'))
 def contactforblood(emailid):
     if request.method == 'GET':
@@ -440,9 +216,6 @@ def contactforblood(emailid):
         conn.close()
         flash('request sent')
         return redirect(url_for('index'))
-
-
-
 @app.route('/notifications',methods=('GET','POST'))
 def notifications():
     if request.method == 'GET':
@@ -462,42 +235,6 @@ def notifications():
                 return render_template('notifications.html')
             else:
                 return render_template('notifications.html',rows=rows)
-
-
-
-
-
-
-
-
-
-
-
-
-
-@app.route('/deleteuser/<useremail>',methods=('GET', 'POST'))
-def deleteuser(useremail):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from users Where email=?',(useremail,))
-        flash('deleted user:'+useremail)
-        conn.commit()
-        conn.close()
-        return redirect(url_for('dashboard'))
-
-
-@app.route('/deletebloodentry/<id>',methods=('GET', 'POST'))
-def deletebloodentry(id):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from blood Where id=?',(id,))
-        flash('deleted entry:'+id)
-        conn.commit()
-        conn.close()
-        return redirect(url_for('dashboard'))
-
 @app.route('/deleteme/<useremail>',methods=('GET', 'POST'))
 def deleteme(useremail):
     if request.method == 'GET':
@@ -521,8 +258,6 @@ def deletenoti(id):
         conn.commit()
         conn.close()
         return redirect(url_for('notifications'))
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
