@@ -1,9 +1,5 @@
 {% extends "base.html" %} {% block content %}
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="css/bootstrap-responsive.css">
-</head>
+
 <div class="container-fluid">
   <center>
     <div class="card text-left mt-3" style="width: 35rem">
@@ -17,8 +13,7 @@
             required
           >
             <option value="blood">blood group</option>
-            <option value="donorname">donorname</option></select
-          ><br />
+            <br />
           <input
             class="form-control mr-sm-2"
             type="search"
@@ -37,12 +32,12 @@
     </div>
   </center>
 </div>
-<div class="container-fluid mb-2 mt-2">
-  {% if search!=NULL %}
+<div class="container-fluid">
+  <!-- Content here -->
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item active" aria-current="page">
-        Search results:
+        Search Results:
       </li>
     </ol>
   </nav>
@@ -59,66 +54,7 @@
         <p class="card-text ml-3">
           Address: {{s["addr"]}} {{ s["city"]}} {{s['pin']}}
           <br />
-
           {% if session['username'] == s['email']%}
-
-          <span
-            class="d-inline-block"
-            data-toggle="popover"
-            data-content="Disabled popover"
-          >
-            <button
-              class="btn btn-primary mt-2 content-justify-end"
-              style="pointer-events: none"
-              type="button"
-              disabled
-            >
-              contact for blood
-            </button>
-          </span>
-
-          {% elif session['logged_in'] == True %}
-
-          <button
-            type="button"
-            class="btn btn-primary mt-1 content-justify-end"
-            data-toggle="modal"
-            data-target="#exampleModalCenter"
-          >
-            contact for blood
-          </button>
-        </p>
-
-        {% endif %}
-      </div>
-      <br />
-      {% endfor %} {% endif %}
-    </div>
-  </center>
-</div>
-<div class="container-fluid">
-  <!-- Content here -->
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item active" aria-current="page">
-        Registered donors:
-      </li>
-    </ol>
-  </nav>
-
-  <center>
-    {% for row in rows %}
-    <div class="card text-left" style="width: 70rem">
-      <div class="card-header">{{row["name"]}}</div>
-      <div class="card-body ml-3">
-        <h5 class="card-title ml-3">{{row['email']}}</h5>
-        <h6 class="card-subtitle mb-2 ml-3 text-muted">
-          Blood Group: {{row['bg']}}
-        </h6>
-        <p class="card-text ml-3">
-          Address: {{row["addr"]}} {{ row["city"]}} {{row['pin']}}
-          <br />
-          {% if session['username'] == row['email']%}
 
           <span
             class="d-inline-block"
@@ -139,7 +75,7 @@
           <button
             type="button"
             class="btn btn-primary mt-1"
-            onclick="send_notification_clicked('{{row['email']}}');"
+            onclick="send_notification_clicked('{{s['email']}}');"
             data-toggle="modal"
             data-target="#exampleModalCenter"
             
@@ -219,5 +155,3 @@ messages%}
 </div>
 
 {%endfor%} {%endif%} {% endwith %} {% endblock %}
-
-
