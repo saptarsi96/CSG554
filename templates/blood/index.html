@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+
+<head>
+    <style>
+        .xyz{
+          margin-bottom: 0px;
+          background-image: url('{% static "image/homepage.jpg" %}');
+          background-size: cover;
+          background-repeat: no-repeat;
+        }
+      </style>
+      
+</head>
+
+
+<body>
+  {% include "blood/navbar.html" %}
+<br>
+<!--<section id="section-jumbotron" style="margin-bottom: 0px;" class="jumbotron jumbotron-fluid d-flex justify-content-center align-items-center xyz">
+    <div class="container text-center">
+
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+     
+      
+      <br><br><br><br>
+      
+    </div>  
+  </section>-->
+  <br><br><br><br><br><br><br><br><br><br><br><br>
+  <div class="container text-center">
+   <h1 class="font-semibold text-center" style="font-size:52px">“Donate Blood Because You Never Know How Helpful It Might Be To Someone.”</h1>
+</div>
+</body>
+
+</html>
