@@ -143,5 +143,4 @@ EMAIL_HOST_PASSWORD = 'xyz' # host email password required
 # this process is required because google blocks apps authentication by default
 EMAIL_RECEIVING_USER = ['to@gmail.com'] # email on which you will receive messages sent from website
 
-STATIC_ROOT = os.path.join(BASE_DIR, ‘static’)
 
